@@ -1,10 +1,14 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getPost } from "~/fakeDb";
+import { db } from "~/db.server";
 
-export const loader = ({ params }: LoaderArgs) => {
-  const post = getPost(Number(params.postId));
+export const loader = async ({ params }: LoaderArgs) => {
+  const postId = Number(params.postId);
+
+  const post = await db.post.findUnique({
+    where: { id: postId }
+  })
 
   if (!post) throw json({}, { status: 404 });
 
@@ -17,7 +21,7 @@ export default function PostPage() {
   return (
     <div>
       <h1 style={{ lineHeight: "1" }}>{post.title}</h1>
-      <p>{post.title}</p>
+      <p>{post.content}</p>
     </div>
   );
 }
